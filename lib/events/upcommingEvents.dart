@@ -20,8 +20,6 @@ class _UpcommingEventsState extends State<UpcommingEvents> {
   late var events = null;
   late var _userData = null;
   late var id = null;
-  late var _category;
-
   static var userType = null;
   var clicked = 0;
 

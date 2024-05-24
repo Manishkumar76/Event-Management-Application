@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'authentication/loginPage.dart';
+import 'eventModels/createEventPage.dart';
 import 'navbar.dart';
 
 class Homepage extends StatefulWidget {
@@ -156,7 +157,7 @@ class _HomepageState extends State<Homepage> {
                 centerTitle: true,
                 floating: true,
                 snap: true,
-                title: const Text("Mrsptu Events",
+                title: const Text("Home",
                     style: TextStyle(
 
                         fontSize: 20,)),
@@ -176,692 +177,336 @@ class _HomepageState extends State<Homepage> {
                 ],
               ),
             ]),
-        body: userType == "Organizer"
-            ? RefreshIndicator(
-                onRefresh: () => refresh(),
-                child: SafeArea(
-                  child: Container(
-                    decoration: BoxDecoration(
-                        gradient: RadialGradient(colors: [
-                      Colors.blue.shade50,
-                      Colors.white,
-                      Colors.blue.shade50
-                    ])),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Stack(
-                        children: [
-                          // const RiveAnimation.asset("assets/rive/shapes.riv"),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                  height: 62,
-                                  child: Row(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(10.0),
-                                        child: Row(
-                                          children: [
-                                            const Text(
-                                              "Hi! ",
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w500),
-                                            ),
-                                            _userData == null
-                                                ? Shimmer.fromColors(
-                                                    baseColor:
-                                                        Colors.grey[300]!,
-                                                    highlightColor: Colors.grey,
-                                                    child: SizedBox(
-                                                        width: 200,
-                                                        height: 25,
-                                                        child: Text("User",
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .grey[300],
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w900,
-                                                                fontSize: 20))))
-                                                : Text(
-                                                    _userData['A_name'],
-                                                    style: const TextStyle(
-                                                        color: Colors.blue,
-                                                        fontWeight:
-                                                            FontWeight.w900,
-                                                        fontSize: 20),
-                                                  ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  )),
-                              SizedBox(
-                                height: 50,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 10, right: 10),
-                                  child: TextField(
-                                    decoration: InputDecoration(
-                                        prefixIcon:
-                                            const Icon(Icons.search_rounded),
-                                        border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        suffixIcon:
-                                            const Icon(Icons.mic_none_rounded)),
+        body:
+        SafeArea(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Stack(
+              children: [
+                // const RiveAnimation.asset("assets/rive/shapes.riv"),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                        height: 62,
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(10.0),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "Hi, ",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w900),
                                   ),
-                                ),
-                              ),
-                              SizedBox(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(11.0),
-                                  child: Column(
-                                    children: [
-                                      const Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "Categories",
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w900),
-                                          ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                "View all",
-                                                style: TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                              ),
-                                              Icon(
-                                                Icons.arrow_forward_ios,
-                                                size: 18,
-                                              )
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 60,
-                                        child: SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                              ElevatedButton(
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      clicked = 1;
-                                                      _category = "Sports";
-                                                    });
-
-                                                    Filter();
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              clicked == 1
-                                                                  ? Colors.blue
-                                                                  : Colors.grey
-                                                                      .shade50),
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                          Icons
-                                                              .sports_tennis_outlined,
-                                                          color: clicked == 1
-                                                              ? Colors.white
-                                                              : Colors.purple),
-                                                      const SizedBox(
-                                                        width: 2,
-                                                      ),
-                                                      Text(
-                                                        "Sports",
-                                                        style: TextStyle(
-                                                            color: clicked == 1
-                                                                ? Colors.white
-                                                                : Colors.black,
-                                                            fontSize: 15),
-                                                      ),
-                                                    ],
-                                                  )),
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                              ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              clicked == 2
-                                                                  ? Colors.blue
-                                                                  : Colors.grey
-                                                                      .shade50),
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      clicked = 2;
-                                                      _category = "Technical";
-                                                    });
-                                                    Filter();
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(Icons.computer,
-                                                          color: clicked == 2
-                                                              ? Colors.white
-                                                              : Colors.purple),
-                                                      const SizedBox(
-                                                        width: 2,
-                                                      ),
-                                                      Text(
-                                                        "Technical",
-                                                        style: TextStyle(
-                                                            color: clicked == 2
-                                                                ? Colors.white
-                                                                : Colors.black,
-                                                            fontSize: 15),
-                                                      ),
-                                                    ],
-                                                  )),
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                              ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              clicked == 3
-                                                                  ? Colors.blue
-                                                                  : Colors.grey
-                                                                      .shade50),
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      clicked = 3;
-                                                      _category = "Cultural";
-                                                    });
-                                                    Filter();
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                          Icons
-                                                              .music_note_outlined,
-                                                          color: clicked == 3
-                                                              ? Colors.white
-                                                              : Colors.purple),
-                                                      const SizedBox(
-                                                        width: 2,
-                                                      ),
-                                                      Text(
-                                                        "Cultural",
-                                                        style: TextStyle(
-                                                            color: clicked == 3
-                                                                ? Colors.white
-                                                                : Colors.black,
-                                                            fontSize: 15),
-                                                      ),
-                                                    ],
-                                                  )),
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                              ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              clicked == 4
-                                                                  ? Colors.blue
-                                                                  : Colors.grey
-                                                                      .shade50),
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      clicked = 4;
-                                                      _category = "Quiz";
-                                                    });
-                                                    Filter();
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(Icons.question_mark,
-                                                          color: clicked == 4
-                                                              ? Colors.white
-                                                              : Colors.purple),
-                                                      const SizedBox(
-                                                        width: 2,
-                                                      ),
-                                                      Text(
-                                                        "Quiz",
-                                                        style: TextStyle(
-                                                            color: clicked == 4
-                                                                ? Colors.white
-                                                                : Colors.black,
-                                                            fontSize: 15),
-                                                      ),
-                                                    ],
-                                                  )),
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                              ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              clicked == 5
-                                                                  ? Colors.blue
-                                                                  : Colors.grey
-                                                                      .shade50),
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      clicked = 5;
-                                                      _category = "Travel";
-                                                    });
-                                                    Filter();
-                                                  },
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                          Icons
-                                                              .trip_origin_rounded,
-                                                          color: clicked == 5
-                                                              ? Colors.white
-                                                              : Colors.purple),
-                                                      const SizedBox(
-                                                        width: 2,
-                                                      ),
-                                                      Text(
-                                                        "Travel",
-                                                        style: TextStyle(
-                                                            color: clicked == 5
-                                                                ? Colors.white
-                                                                : Colors.black,
-                                                            fontSize: 15),
-                                                      ),
-                                                    ],
-                                                  )),
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                    ],
+                                  Text(
+                                     "User",
+                                    // _userData == null
+                                    //     ? ""
+                                    //     : _userData['U_name'].toString().toUpperCase(),
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w900),
                                   ),
-                                ),
+                                  Text(
+                                    "!👋",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w900),
+                                  ),
+                                ],
                               ),
-
-
-
-                              Flexible(
-                                child: events == null
-                                    ? Center(
-                                        child: CircularProgressIndicator(
-                                        color: Colors.blue,
-                                        strokeCap: StrokeCap.round,
-                                        backgroundColor:
-                                            Colors.lightBlue.shade100,
-                                      ))
-                                    : ListView.builder(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        scrollDirection: Axis.vertical,
-                                        itemCount: events.length,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          return EventCard(
-                                            event: events[index],
-                                            index: index,
-                                            id: id,
-                                            user:userType,
-                                          );
-                                        },
-                                      ),
-                              ),
-                            ],
-                          ),
-                        ],
+                            )
+                          ],
+                        )),
+                    SizedBox(
+                      height: 50,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(left: 10, right: 10),
+                        child: TextField(
+                          decoration: InputDecoration(
+                              prefixIcon:
+                                  const Icon(Icons.search_rounded),
+                              border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(10)),
+                              suffixIcon:
+                                  const Icon(Icons.mic_none_rounded)),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              )
-
-
-            : RefreshIndicator(
-                onRefresh: () => refresh(),
-                child: SafeArea(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Stack(
-                      children: [
-                        // const RiveAnimation.asset("assets/rive/shapes.riv"),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    SizedBox(
+                      child: Padding(
+                        padding: const EdgeInsets.all(11.0),
+                        child: Column(
                           children: [
-                            SizedBox(
-                                height: 62,
-                                child: Row(
+                            const Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Categories",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900),
+                                ),
+                                Row(
                                   children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(10.0),
+                                    Text(
+                                      "View all",
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 18,
+                                    )
+                                  ],
+                                )
+                              ],
+                            ),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          clicked = 1;
+                                          _category = "Sports";
+                                        });
+
+                                        Filter();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: clicked == 1
+                                              ? Colors.blue
+                                              : Colors.grey.shade50),
                                       child: Row(
                                         children: [
-                                          const Text(
-                                            "Hi! ",
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w500),
+                                          Icon(
+                                              Icons
+                                                  .sports_tennis_outlined,
+                                              color: clicked == 1
+                                                  ? Colors.white
+                                                  : Colors.purple),
+                                          const SizedBox(
+                                            width: 2,
                                           ),
                                           Text(
-                                            _userData == null
-                                                ? ""
-                                                : _userData['U_name'],
-                                            style: const TextStyle(
-                                                color: Colors.blue,
-                                                fontWeight: FontWeight.w900,
-                                                fontSize: 20),
+                                            "Sports",
+                                            style: TextStyle(
+                                                color: clicked == 1
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                                fontSize: 15),
                                           ),
                                         ],
-                                      ),
-                                    )
-                                  ],
-                                )),
-                            SizedBox(
-                              height: 50,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 10, right: 10),
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                      prefixIcon:
-                                          const Icon(Icons.search_rounded),
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      suffixIcon:
-                                          const Icon(Icons.mic_none_rounded)),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              child: Padding(
-                                padding: const EdgeInsets.all(11.0),
-                                child: Column(
-                                  children: [
-                                    const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          "Categories",
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w900),
-                                        ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "View all",
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w500),
-                                            ),
-                                            Icon(
-                                              Icons.arrow_forward_ios,
-                                              size: 18,
-                                            )
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                    SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const SizedBox(
-                                            width: 10,
-                                          ),
-                                          ElevatedButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  clicked = 1;
-                                                  _category = "Sports";
-                                                });
-
-                                                Filter();
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                  backgroundColor: clicked == 1
-                                                      ? Colors.blue
-                                                      : Colors.grey.shade50),
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                      Icons
-                                                          .sports_tennis_outlined,
-                                                      color: clicked == 1
-                                                          ? Colors.white
-                                                          : Colors.purple),
-                                                  const SizedBox(
-                                                    width: 2,
-                                                  ),
-                                                  Text(
-                                                    "Sports",
-                                                    style: TextStyle(
-                                                        color: clicked == 1
-                                                            ? Colors.white
-                                                            : Colors.black,
-                                                        fontSize: 15),
-                                                  ),
-                                                ],
-                                              )),
-                                          const SizedBox(
-                                            width: 10,
-                                          ),
-                                          ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                  backgroundColor: clicked == 2
-                                                      ? Colors.blue
-                                                      : Colors.grey.shade50),
-                                              onPressed: () {
-                                                setState(() {
-                                                  clicked = 2;
-                                                  _category = "Technical";
-                                                });
-                                                Filter();
-                                              },
-                                              child: Row(
-                                                children: [
-                                                  Icon(Icons.computer,
-                                                      color: clicked == 2
-                                                          ? Colors.white
-                                                          : Colors.purple),
-                                                  const SizedBox(
-                                                    width: 2,
-                                                  ),
-                                                  Text(
-                                                    "Technical",
-                                                    style: TextStyle(
-                                                        color: clicked == 2
-                                                            ? Colors.white
-                                                            : Colors.black,
-                                                        fontSize: 15),
-                                                  ),
-                                                ],
-                                              )),
-                                          const SizedBox(
-                                            width: 10,
-                                          ),
-                                          ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                  backgroundColor: clicked == 3
-                                                      ? Colors.blue
-                                                      : Colors.grey.shade50),
-                                              onPressed: () {
-                                                setState(() {
-                                                  clicked = 3;
-                                                  _category = "Cultural";
-                                                });
-                                                Filter();
-                                              },
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                      Icons.music_note_outlined,
-                                                      color: clicked == 3
-                                                          ? Colors.white
-                                                          : Colors.purple),
-                                                  const SizedBox(
-                                                    width: 2,
-                                                  ),
-                                                  Text(
-                                                    "Cultural",
-                                                    style: TextStyle(
-                                                        color: clicked == 3
-                                                            ? Colors.white
-                                                            : Colors.black,
-                                                        fontSize: 15),
-                                                  ),
-                                                ],
-                                              )),
-                                          const SizedBox(
-                                            width: 10,
-                                          ),
-                                          ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                  backgroundColor: clicked == 4
-                                                      ? Colors.blue
-                                                      : Colors.grey.shade50),
-                                              onPressed: () {
-                                                setState(() {
-                                                  clicked = 4;
-                                                  _category = "Quiz";
-                                                });
-                                                Filter();
-                                              },
-                                              child: Row(
-                                                children: [
-                                                  Icon(Icons.question_mark,
-                                                      color: clicked == 4
-                                                          ? Colors.white
-                                                          : Colors.purple),
-                                                  const SizedBox(
-                                                    width: 2,
-                                                  ),
-                                                  Text(
-                                                    "Quiz",
-                                                    style: TextStyle(
-                                                        color: clicked == 4
-                                                            ? Colors.white
-                                                            : Colors.black,
-                                                        fontSize: 15),
-                                                  ),
-                                                ],
-                                              )),
-                                          const SizedBox(
-                                            width: 10,
-                                          ),
-                                          ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                  backgroundColor: clicked == 5
-                                                      ? Colors.blue
-                                                      : Colors.grey.shade50),
-                                              onPressed: () {
-                                                setState(() {
-                                                  clicked = 5;
-                                                  _category = "Travel";
-                                                });
-                                                Filter();
-                                              },
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                      Icons.trip_origin_rounded,
-                                                      color: clicked == 5
-                                                          ? Colors.white
-                                                          : Colors.purple),
-                                                  const SizedBox(
-                                                    width: 2,
-                                                  ),
-                                                  Text(
-                                                    "Travel",
-                                                    style: TextStyle(
-                                                        color: clicked == 5
-                                                            ? Colors.white
-                                                            : Colors.black,
-                                                        fontSize: 15),
-                                                  ),
-                                                ],
-                                              )),
-                                          const SizedBox(
-                                            width: 10,
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Flexible(
-                              child: events == null
-                                  ? Center(
-                                      child: CircularProgressIndicator(
-                                      color: Colors.blue,
-                                      strokeCap: StrokeCap.round,
-                                      backgroundColor:
-                                          Colors.lightBlue.shade100,
-                                    ))
-                                  : ListView.builder(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      scrollDirection: Axis.vertical,
-                                      itemCount: events.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return EventCard(
-                                          event: events[index],
-                                          index: index,
-                                          id: id.toString(),
-                                        );
+                                      )),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: clicked == 2
+                                              ? Colors.blue
+                                              : Colors.grey.shade50),
+                                      onPressed: () {
+                                        setState(() {
+                                          clicked = 2;
+                                          _category = "Technical";
+                                        });
+                                        Filter();
                                       },
-                                    ),
-                            ),
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.computer,
+                                              color: clicked == 2
+                                                  ? Colors.white
+                                                  : Colors.purple),
+                                          const SizedBox(
+                                            width: 2,
+                                          ),
+                                          Text(
+                                            "Technical",
+                                            style: TextStyle(
+                                                color: clicked == 2
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                                fontSize: 15),
+                                          ),
+                                        ],
+                                      )),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: clicked == 3
+                                              ? Colors.blue
+                                              : Colors.grey.shade50),
+                                      onPressed: () {
+                                        setState(() {
+                                          clicked = 3;
+                                          _category = "Cultural";
+                                        });
+                                        Filter();
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                              Icons.music_note_outlined,
+                                              color: clicked == 3
+                                                  ? Colors.white
+                                                  : Colors.purple),
+                                          const SizedBox(
+                                            width: 2,
+                                          ),
+                                          Text(
+                                            "Cultural",
+                                            style: TextStyle(
+                                                color: clicked == 3
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                                fontSize: 15),
+                                          ),
+                                        ],
+                                      )),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: clicked == 4
+                                              ? Colors.blue
+                                              : Colors.grey.shade50),
+                                      onPressed: () {
+                                        setState(() {
+                                          clicked = 4;
+                                          _category = "Quiz";
+                                        });
+                                        Filter();
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.question_mark,
+                                              color: clicked == 4
+                                                  ? Colors.white
+                                                  : Colors.purple),
+                                          const SizedBox(
+                                            width: 2,
+                                          ),
+                                          Text(
+                                            "Quiz",
+                                            style: TextStyle(
+                                                color: clicked == 4
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                                fontSize: 15),
+                                          ),
+                                        ],
+                                      )),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: clicked == 5
+                                              ? Colors.blue
+                                              : Colors.grey.shade50),
+                                      onPressed: () {
+                                        setState(() {
+                                          clicked = 5;
+                                          _category = "Travel";
+                                        });
+                                        Filter();
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                              Icons.trip_origin_rounded,
+                                              color: clicked == 5
+                                                  ? Colors.white
+                                                  : Colors.purple),
+                                          const SizedBox(
+                                            width: 2,
+                                          ),
+                                          Text(
+                                            "Travel",
+                                            style: TextStyle(
+                                                color: clicked == 5
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                                fontSize: 15),
+                                          ),
+                                        ],
+                                      )),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                ],
+                              ),
+                            )
                           ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                    Flexible(
+                      child: events == null
+                          ? Center(
+                              child: CircularProgressIndicator(
+                              color: Colors.blue,
+                              strokeCap: StrokeCap.round,
+                              backgroundColor:
+                                  Colors.lightBlue.shade100,
+                            ))
+                          : ListView.builder(
+                              shrinkWrap: true,
+                              physics:
+                                  const NeverScrollableScrollPhysics(),
+                              scrollDirection: Axis.vertical,
+                              itemCount: events.length,
+                              itemBuilder:
+                                  (BuildContext context, int index) {
+                                return EventCard(
+                                  event: events[index],
+                                  index: index,
+                                  id: id.toString(),
+                                );
+                              },
+                            ),
+                    ),
+                  ],
                 ),
-              ),
+              ],
+            ),
+          ),
+        ),
       ),
       floatingActionButton: userType == 'Organizer'
           ? FloatingActionButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context,MaterialPageRoute(builder: (context)=>CreateEvent()));
+              },
               child: const Icon(Icons.add),
             )
           : null,
     );
   }
 }
-
 class EventCard extends StatelessWidget {
   late final id;
   final Map<String, dynamic> event;
