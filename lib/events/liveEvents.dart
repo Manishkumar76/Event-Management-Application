@@ -143,10 +143,14 @@ class _LiveEventsState extends State<LiveEvents> {
                               scrollDirection: Axis.vertical,
                               itemCount: events.length,
                               itemBuilder: (BuildContext context, int index) {
-                                return EventCard(
-                                  event: events[index],
-                                  index: index,
-                                  id: id.toString(),
+                                var event= events[index];
+                                return Card(
+                                  child: Column(
+                                    children: <Widget>[
+                                      Image.network(event.mainImage, width: 100, height: 100, fit: BoxFit.cover),
+                                      Text(event.name),
+                                    ],
+                                  ),
                                 );
                               },
                             ),
@@ -157,3 +161,5 @@ class _LiveEventsState extends State<LiveEvents> {
     );
   }
 }
+
+

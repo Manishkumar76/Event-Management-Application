@@ -5,9 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:project/authentication/organizerLogin.dart';
 import 'package:project/authentication/register.dart';
 import 'package:project/constant/utils.dart';
-import 'package:project/homepage.dart';
 import 'package:project/splashScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../homepage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -50,7 +51,7 @@ class LoginPageState extends State<LoginPage> {
 
         print('Login successful');
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Homepage()));
+            context, MaterialPageRoute(builder: (context) => HomePage()));
         // Navigate to the next screen or perform any other action
       } else if (response.statusCode == 401) {
         ScaffoldMessenger.of(context).showSnackBar(

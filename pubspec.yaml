@@ -39,6 +39,7 @@ dependencies:
   flutter_secure_storage:
   shared_preferences:
   shimmer: ^3.0.0
+  carousel_slider: ^4.2.1
 #  flutter_svg:
 #  rive:
 

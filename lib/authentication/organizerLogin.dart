@@ -48,7 +48,7 @@ class _OrganizerState extends State<Organizer> {
         sp.setString('email', _emailController.text);
         print('Login successful');
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Homepage()));
+            context, MaterialPageRoute(builder: (context) => HomePage()));
         // Navigate to the next screen or perform any other action
       } else if (response.statusCode == 401) {
         ScaffoldMessenger.of(context).showSnackBar(

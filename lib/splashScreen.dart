@@ -67,7 +67,7 @@ class SplashScreenState extends State<SplashScreen> {
       if(Islogedin!=null){
 
         if(Islogedin){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const Homepage()));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomePage()));
         }
         else{
           Navigator.pushReplacement(
