@@ -6,6 +6,8 @@ import 'package:project/events/eventPage.dart';
 import 'package:project/splashScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'Services/user_services.dart';
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -13,15 +15,26 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<List<Event>> futureEvents;
+  var userId;
   var userType;
+  var user;
+  Future getUserDetails()async{
+    user=UserServices().getUserById(userId);
+  }
   Future getUserType() async{
     SharedPreferences sp= await SharedPreferences.getInstance();
-    userType= sp.getString(SplashScreenState.KeyUser);
+    setState(() {
+      userType= sp.getString(SplashScreenState.KeyUser);
+      userId=sp.get('userId');
+    });
+
   }
   @override
   void initState() {
     super.initState();
     futureEvents = EventServices().fetchAllEvents();
+    getUserType();
+    getUserDetails();
   }
 
 
@@ -44,6 +57,7 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  _buildInitialBar(),
                   _buildCarouselSlider(events),
                   _buildCategorySection('Cultural Events', events, 1),
                   _buildCategorySection('Technical Events', events, 2),
@@ -61,23 +75,65 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildInitialBar(){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text('Hi,',style: TextStyle(fontWeight: FontWeight.w700,color: Colors.purple,fontSize: 20),),
+                Text('User! 👋',style: TextStyle(fontWeight: FontWeight.w700,color: Colors.purple,fontSize:20)),
+              ],
+
+            ),
+            SizedBox(
+              height: 3,
+            ),
+            Text('Explor more and partcipate',style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16),)
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildCarouselSlider(List<Event> events) {
     return CarouselSlider(
       options: CarouselOptions(height: 200.0, autoPlay: true),
       items: events.map((event) {
         return Builder(
           builder: (BuildContext context) {
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EventDetailPage(eventId: event.id,user:userType),
-                  ),
-                );
-              },
-              child: Image.network(event.mainImage, fit: BoxFit.cover),
-            );
+            return
+               Container(
+                 decoration: BoxDecoration(
+                     borderRadius: BorderRadius.circular(10)
+                 ),
+                 child: GestureDetector(
+
+                   onTap: () {
+                     Navigator.push(
+                       context,
+                       MaterialPageRoute(
+                         builder: (context) => EventDetailPage(eventId: event.id,user:userType),
+                       ),
+                     );
+                   },
+                   child: Stack(
+                     children:[
+                       ClipRRect(
+                         borderRadius: BorderRadius.circular(10),
+                         child: Image.asset('assets/images/badminton.jpg', fit: BoxFit.cover)),
+                     Positioned(
+                         top:20,
+                         left:20,
+                         child: Text("event Name",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w800),)),
+                     ]
+                   ),
+                 ),
+               );
           },
         );
       }).toList(),

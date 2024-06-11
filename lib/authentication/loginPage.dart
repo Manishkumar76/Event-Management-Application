@@ -43,11 +43,11 @@ class LoginPageState extends State<LoginPage> {
           body: userbody);
 
       if (response.statusCode == 200) {
+
         var sp = await SharedPreferences.getInstance();
         sp.setBool(SplashScreenState.KeyLogin, true);
         sp.setString(SplashScreenState.KeyUser, 'Student');
-        sp.setInt('u_id', int.parse(_idController.text));
-        sp.setString('pass_word', _passController.text);
+        sp.setInt('userId', int.parse(_idController.text));
 
         print('Login successful');
         Navigator.pushReplacement(

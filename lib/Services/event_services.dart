@@ -7,7 +7,7 @@ class EventServices {
   static  String baseUrl = Utils.baseUrl;
 
   Future<Event> fetchEventDetails(int eventId) async {
-    final response = await http.get(Uri.parse('$baseUrl/event/$eventId'));
+    final response = await http.get(Uri.parse('${baseUrl}events/event/$eventId'));
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
@@ -52,7 +52,7 @@ class EventServices {
   }
 
   Future<Event> deleteEvent(int eventId) async {
-    final response = await http.delete(Uri.parse('$baseUrl/event/$eventId'));
+    final response = await http.delete(Uri.parse('${baseUrl}events/event/$eventId'));
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
@@ -63,7 +63,7 @@ class EventServices {
   }
 
   Future<List<Event>> fetchAllEvents() async {
-    final response = await http.get(Uri.parse('$baseUrl/events'));
+    final response = await http.get(Uri.parse('${baseUrl}events/events'));
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
