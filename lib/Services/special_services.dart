@@ -1,30 +1,29 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../Models/user_model.dart';
+import 'package:project/Models/Depart_model.dart';
+import 'package:project/Models/Batch_model.dart';
 import '../constant/utils.dart';
 
 class SpecialServices {
+  static String baseUrl = Utils.baseUrl;
 
-  static  String baseUrl = Utils.baseUrl;
-  Future <List> getBatch() async {
+  Future<List<Batch>> getBatch() async {
     final response = await http.get(Uri.parse('${baseUrl}others/getbatch'));
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return json; // assuming the API returns a list with a single event object
+      final List<dynamic> result = jsonDecode(response.body);
+      return result.map((json) => Batch.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load batches');
     }
   }
 
-  Future <List> getDepartment() async{
-    var response = await http.get(Uri.parse("${baseUrl}others/getAllDepartments"));
-    if (response.statusCode==200){
-      final json = jsonDecode(response.body);
-      return json;
-    }
-    else{
+  Future<List<Department>> getDepartment() async {
+    final response = await http.get(Uri.parse("${baseUrl}others/getAllDepartments"));
+    if (response.statusCode == 200) {
+      final List<dynamic> result = jsonDecode(response.body);
+      return result.map((json) => Department.fromJson(json)).toList();
+    } else {
       throw Exception('Failed to load Departments');
     }
   }
 }
-
