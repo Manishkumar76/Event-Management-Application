@@ -156,7 +156,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             )
                           ]),
                         ),
-                        Positioned(
+                        const Positioned(
                           bottom: 10.0,
                           left: 70.0,
                           right: 70,
@@ -164,7 +164,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             // height: 120,
                             width: 120,
                             child: ClipRRect(
-                              borderRadius: const BorderRadius.all(
+                              borderRadius: BorderRadius.all(
                                 Radius.circular(150),
                               ),
                               child: Center(

@@ -1,14 +1,13 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:project/authentication/organizerLogin.dart';
 import 'package:project/authentication/register.dart';
 import 'package:project/constant/utils.dart';
 import 'package:project/splashScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:project/services/user_services.dart'; // Make sure to import your UserServices
 import '../homepage.dart';
+import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -23,14 +22,11 @@ class LoginPageState extends State<LoginPage> {
   late TextEditingController _idController = TextEditingController();
   bool isNotValid = false;
   var id;
-  var clicked=1;
+  var clicked = 1;
   static const u_id = 'u_id';
-  // final FlutterSecureStorage storage = FlutterSecureStorage();
+  UserServices userServices = UserServices();
+
   Future<void> login() async {
-    final userbody = {
-      'u_id': _idController.text,
-      'pass_word': _passController.text,
-    };
     if (_idController.text.isEmpty && _passController.text.isEmpty) {
       setState(() {
         isNotValid = true;
@@ -39,44 +35,32 @@ class LoginPageState extends State<LoginPage> {
       setState(() {
         isNotValid = false;
       });
-      final response = await http.post(Uri.parse('${Utils.baseUrl}user/login'),
-          body: userbody);
+      try {
+        print("login execute");
+        var user = await userServices.loginUser(_idController.text, _passController.text);
 
-      if (response.statusCode == 200) {
+      var sp = await SharedPreferences.getInstance();
+      sp.setBool(SplashScreenState.KeyLogin, true);
+      sp.setString(SplashScreenState.KeyUser, 'Student');
+      sp.setInt(u_id, user.id);
 
-        var sp = await SharedPreferences.getInstance();
-        sp.setBool(SplashScreenState.KeyLogin, true);
-        sp.setString(SplashScreenState.KeyUser, 'Student');
-        sp.setInt('userId', int.parse(_idController.text));
-
-        print('Login successful');
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
-        // Navigate to the next screen or perform any other action
-      } else if (response.statusCode == 401) {
+      print('Login successful');
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => HomePage()));      } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text(
-                'This account is not exist!.Enter Existing Account if have not please sign up '),
-            duration: Duration(seconds: 3),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content:
-                Text('Something went Wrong! please wait and try again letter.'),
+            content: Text('Failed to login user'),
             duration: Duration(seconds: 3),
           ),
         );
       }
     }
     setState(() {
-      clicked=1;
+      clicked = 1;
     });
   }
 
-  Future refreshIndicator()async{
+  Future refreshIndicator() async {
     setState(() {
       clicked = 0;
     });
@@ -122,7 +106,6 @@ class LoginPageState extends State<LoginPage> {
                 onChanged: (value) {
                   id = value;
                 },
-                style: TextStyle(),
                 controller: _idController,
                 decoration: InputDecoration(
                   errorText: isNotValid ? "Enter proper info" : null,
@@ -132,7 +115,7 @@ class LoginPageState extends State<LoginPage> {
                   enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: const BorderSide(color: Colors.blueAccent)),
-                  label: const Text("Roll Number"),
+                  label: const Text("Email"),
                 ),
               ),
               const SizedBox(
@@ -149,7 +132,7 @@ class LoginPageState extends State<LoginPage> {
                   enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: const BorderSide(color: Colors.blueAccent)),
-                  label: const Text("password"),
+                  label: const Text("Password"),
                   suffixIcon: IconButton(
                     icon: Icon(_isShow
                         ? Icons.remove_red_eye_outlined
@@ -165,7 +148,8 @@ class LoginPageState extends State<LoginPage> {
               const SizedBox(
                 height: 10,
               ),
-              clicked==1? ElevatedButton(
+              clicked == 1
+                  ? ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -178,7 +162,8 @@ class LoginPageState extends State<LoginPage> {
                         fontSize: 20,
                         fontWeight: FontWeight.w900,
                         color: Colors.white),
-                  )):const Center(child:  CircularProgressIndicator()),
+                  ))
+                  : const Center(child: CircularProgressIndicator()),
               const SizedBox(
                 height: 10,
               ),
@@ -187,7 +172,7 @@ class LoginPageState extends State<LoginPage> {
                     forgotPassword(context, id);
                   },
                   child: const Text(
-                    "forgotten!",
+                    "Forgotten!",
                     style: TextStyle(color: Colors.blue),
                   )),
               Row(
@@ -203,7 +188,7 @@ class LoginPageState extends State<LoginPage> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    const RegistrationPage()));
+                                const RegistrationPage()));
                       },
                       child: const Text("Sign Up"))
                 ],
@@ -240,12 +225,12 @@ class LoginPageState extends State<LoginPage> {
 
   void forgotPassword(context, String id) async {
     final response = await http.post(
-      Uri.parse('${Utils.baseUrl}3000/user/forgot'),
+      Uri.parse('${Utils.baseUrl}user/forgot'),
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': id}),
     );
     print(response.body);
     if (response.statusCode == 200) {
-      // Password reset successful
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -262,7 +247,6 @@ class LoginPageState extends State<LoginPage> {
         ),
       );
     } else {
-      // Password reset failed
       showDialog(
         context: context,
         builder: (context) => AlertDialog(

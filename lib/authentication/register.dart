@@ -1,10 +1,10 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:project/Models/Batch_model.dart';
 import 'package:project/Models/Depart_model.dart';
 import 'package:project/Models/user_model.dart';
 import 'package:project/Services/special_services.dart';
 import 'package:project/Services/user_services.dart';
+import 'package:shimmer/shimmer.dart';
 import 'loginPage.dart';
 
 class RegistrationPage extends StatefulWidget {
@@ -23,7 +23,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController _emailController = TextEditingController();
   String? _batchController;
   String? _deptController;
-  final TextEditingController _genderController = TextEditingController();
 
   late Future<List<Batch>> futureBatch;
   late Future<List<Department>> futureDepartments;
@@ -39,7 +38,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final UserServices _userServices = UserServices();
 
   void register() async {
-    if (_emailController.text.isNotEmpty && _passController.text.isNotEmpty) {
+    if (_emailController.text.isNotEmpty &&
+        _passController.text.isNotEmpty &&
+        _nameController.text.isNotEmpty &&
+        _idController.text.isNotEmpty &&
+        _mobileController.text.isNotEmpty &&
+        _batchController != null &&
+        _deptController != null) {
       setState(() {
         isNotValid = false;
       });
@@ -52,17 +57,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
         password: _passController.text,
         rollNo: _idController.text,
         userType: 'student', // Default userType, change if needed
-        gender: _genderController.text, // Update this field if you have gender input
+        gender: "Male/Female", // Update this field if you have gender input
         phone: _mobileController.text,
-        age: 0, // Update this field if you have age input
+        age: 0,
+        departmentId: int.parse(_deptController!),
+        batchId: int.parse(_batchController!),
       );
 
       try {
         User registeredUser = await _userServices.addUser(newUser);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
+
+        if (registeredUser.id != 0) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()),
+          );
+        }
       } catch (error) {
         print("Error: $error");
         ScaffoldMessenger.of(context).showSnackBar(
@@ -78,6 +88,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
       });
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +168,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 future: futureDepartments,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
+                    return Shimmer.fromColors(
+                        baseColor: Colors.grey,
+                        highlightColor: Colors.white,
+                        child: const SizedBox(
+                          width: double.infinity,
+                          height: 30,
+                        ));
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -167,11 +185,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       dropdownColor: Colors.white,
                       decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(width: 1, color: Colors.blueAccent),
+                          borderSide: const BorderSide(
+                              width: 1, color: Colors.blueAccent),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         border: OutlineInputBorder(
-                          borderSide: const BorderSide(width: 1, color: Colors.blueAccent),
+                          borderSide: const BorderSide(
+                              width: 1, color: Colors.blueAccent),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -180,7 +200,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       items: snapshot.data!.map((department) {
                         return DropdownMenuItem<String>(
                           value: department.id.toString(),
-                          child: Text(department.dep_name!),
+                          child: Text(department.dep_name),
                         );
                       }).toList(),
                       onChanged: (newvalue) {
@@ -211,11 +231,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       dropdownColor: Colors.white,
                       decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(width: 1, color: Colors.blueAccent),
+                          borderSide: const BorderSide(
+                              width: 1, color: Colors.blueAccent),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         border: OutlineInputBorder(
-                          borderSide: const BorderSide(width: 1, color: Colors.blueAccent),
+                          borderSide: const BorderSide(
+                              width: 1, color: Colors.blueAccent),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -224,7 +246,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       items: snapshot.data!.map((batch) {
                         return DropdownMenuItem<String>(
                           value: batch.id.toString(),
-                          child: Text(batch.year as String),
+                          child: Text(batch.year.toString()),
                         );
                       }).toList(),
                       onChanged: (newvalue) {

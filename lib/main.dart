@@ -3,8 +3,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:project/homepage.dart';
 
-import 'package:project/splashScreen.dart';
 
 
 class MyHttpOverrides extends HttpOverrides {
@@ -28,8 +28,8 @@ class MyApp extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
 
-   return const MaterialApp(
-    home:SplashScreen() ,
+   return  MaterialApp(
+    home:HomePage(),
     title:"project" ,
     debugShowCheckedModeBanner: false,
    );

@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constant/utils.dart';
-import '../homepage.dart';
 import '../splashScreen.dart';
 
 class LiveEvents extends StatefulWidget {

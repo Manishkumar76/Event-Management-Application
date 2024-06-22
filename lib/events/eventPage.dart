@@ -1,159 +1,70 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:project/Models/event_model.dart';
-import 'package:project/Models/venue_model.dart';
 import 'package:project/Services/event_services.dart';
-import 'package:project/Services/venue_services.dart';
+import 'package:project/Services/participant_services.dart';
 import 'package:project/constant/utils.dart';
 
 class EventDetailPage extends StatefulWidget {
-  late final eventId;
-  
-  EventDetailPage({super.key, required this.eventId, required user});
+  final int eventId;
+
+
+  const EventDetailPage({Key? key, required this.eventId}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
-  _EventDetailPageState createState() =>
-      _EventDetailPageState();
+  _EventDetailPageState createState() => _EventDetailPageState(eventId: eventId);
 }
 
 class _EventDetailPageState extends State<EventDetailPage> {
-
-  late final userType;
-  
   late Future<Event> futureEvent;
-  late Future<Venue> futureEvent_venue;
+  late Future<Map<String, dynamic>> futureVenue;
+  var future_participants;
+late final int eventId ;
+  _EventDetailPageState({required this.eventId});
+
+  Future<Map<String, dynamic>> fetchVenue() async {
+    final response = await http.get(Uri.parse('${Utils.baseUrl}others/getVenue/$eventId'));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Venue not found!');
+    }
+  }
+
+  String formatDateString(String dateString) {
+    // Extract year, month, and day
+    String year = dateString.substring(0, 4);
+    String month = dateString.substring(5, 7);
+    String day = dateString.substring(8, 10);
+
+    // Return in dd-MM-yyyy format
+    return '$day-$month-$year';
+  }
+
+  void getParticipation() async {
+    // Add your participation logic here
+     future_participants= ParticipantServices().addParticipant(eventId, 1);
+  }
 
   @override
   void initState() {
     super.initState();
     futureEvent = EventServices().fetchEventDetails(widget.eventId);
-    futureEvent_venue = VenueServices().fetchEventVenue(widget.eventId);
+    futureVenue = fetchVenue();
   }
-
-  // Future fetchEventDetails() async {
-  //   try {
-  //     final response = await http.post(
-  //         Uri.parse('${Utils.baseUrl}events/eventdata'),
-  //         headers: {"Content-Type": "application/json"},
-  //         body: jsonEncode({'id': eventID}));
-  //
-  //     if (response.statusCode == 200) {
-  //       setState(() {
-  //         eventData = json.decode(response.body);
-  //       });
-  //     } else {
-  //       throw Exception('Failed to load event details');
-  //     }
-  //   } catch (err) {
-  //     rethrow;
-  //   }
-  //   if (eventData['status'] == "Closed") {
-  //     setState(() {
-  //       participated = true;
-  //       result = "No you can't participate! Registration closed.";
-  //     });
-  //   }
-  // }
-  //
-  //
-  //
-  // Future fetchParticipated() async {
-  //   final response = await http.post(
-  //       Uri.parse('${Utils.baseUrl}events/participatedData'),
-  //       headers: {"Content-Type": "application/json"},
-  //       body: jsonEncode({'id': eventID, 'u_id': u_id}));
-  //   if (response.body.isNotEmpty) {
-  //     setState(() {
-  //       participated = true;
-  //       result = "You have participated!";
-  //     });
-  //   } else {
-  //     throw Exception('Failed to load event details');
-  //   }
-  // }
-  //
-  // Future fetchParticipatedData() async {
-  //   final response = await http.post(
-  //       Uri.parse('${Utils.baseUrl}events/EventParticipatedList'),
-  //       headers: {"Content-Type": "application/json"},
-  //       body: jsonEncode({'event_id': eventID}));
-  //   if (response.statusCode==200) {
-  //     setState(() {
-  //       events=jsonDecode(response.body);
-  //       print(events);
-  //     });
-  //   } else {
-  //     throw Exception('Failed to load event data');
-  //   }
-  // }
-  //
-  // Future openDialog() => showDialog(
-  //       context: context,
-  //       builder: (context) => AlertDialog(
-  //         title: const Text("Registration"),
-  //         content: const Text(
-  //           "Do you want to Participate? ",
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //               onPressed: () {
-  //                 setState(() {
-  //                   participated = true;
-  //                 });
-  //                 participateInEvent();
-  //                 Navigator.pop(context);
-  //               },
-  //               child: const Text("Yes")),
-  //           TextButton(
-  //               onPressed: () {
-  //                 Navigator.pop(context);
-  //               },
-  //               child: const Text("NO"))
-  //         ],
-  //       ),
-  //     );
-  //
-  // Future participateInEvent() async {
-  //   print(eventData['status']);
-  //   var bodyData = {'event_id': eventID, 'u_id': u_id};
-  //
-  //   try {
-  //     final response = await http.post(
-  //       Uri.parse('${Utils.baseUrl}events/participate'),
-  //       headers: {"Content-Type": "application/json"},
-  //       body: jsonEncode(bodyData),
-  //     );
-  //
-  //     if (response.statusCode == 200) {
-  //       setState(() {
-  //         participated = true;
-  //         result = "you have participated!";
-  //       });
-  //     } else {
-  //       // Handle API errors or other issues
-  //       print(
-  //           'Failed to participate in the event. Status code: ${response.statusCode}');
-  //     }
-  //   } catch (error) {
-  //     // Handle network errors
-  //     print('Error participating in the event: $error');
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          // title: const Text('Event Details'),
-          ),
+        title: const Text('Event Details'),
+      ),
       body: FutureBuilder<Event>(
         future: futureEvent,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
@@ -171,7 +82,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                           bottomLeft: Radius.circular(200),
                           bottomRight: Radius.circular(50)),
                       child: Image.asset(
-                        "assets/images/${event.mainImage}",
+                        "assets/images/badminton.jpg",
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -181,201 +92,98 @@ class _EventDetailPageState extends State<EventDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Name of Event",
-                              style: TextStyle(
-                                  color: Colors.purple,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('${event.name}',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18,
-                                      )),
-                                  const Icon(Icons.emoji_emotions_outlined)
-                                ],
-                              ),
-                            ),
-                            const Divider(
-                              thickness: 1,
-                            )
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Event's Registeration Date",
-                              style: TextStyle(
-                                  color: Colors.purple,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                      '${event.eventRegisterStartDate.toString().substring(0, 10).split(' ').reversed.join()}-${event.eventRegisterEndDate.toString().substring(0, 10).split(' ').reversed.join()}',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18,
-                                      ),),
-                                  const Icon(Icons.date_range_outlined)
-                                ],
-                              ),
-                            ),
-                            const Divider(
-                              thickness: 1,
-                            )
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Event's Date",
-                              style: TextStyle(
-                                  color: Colors.purple,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                      '${event.eventStartDate}'
-                                          .toString()
-                                          .substring(0, 10).split(' ').reversed.join(),
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18,
-                                      ),),
-                                  const Icon(Icons.date_range_outlined)
-                                ],
-                              ),
-                            ),
-                            const Divider(
-                              thickness: 1,
-                            )
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Time",
-                              style: TextStyle(
-                                  color: Colors.purple,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('${event.eventStartTime}',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18,
-                                      )),
-                                  const Icon(Icons.access_time_outlined)
-                                ],
-                              ),
-                            ),
-                            const Divider(
-                              thickness: 1,
-                            )
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Venue",
-                              style: TextStyle(
-                                  color: Colors.purple,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('',
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18,
-                                      )),
-                                  const Icon(Icons.location_on_outlined)
-                                ],
-                              ),
-                            ),
-                            const Divider(
-                              thickness: 1,
-                            )
-                          ],
+                        _buildDetailRow("Name of Event", event.name, Icons.emoji_emotions_outlined),
+                        _buildDetailRow("Event's Registration Date",
+                            '${formatDateString(event.eventRegisterStartDate.toString().substring(0, 10))} - ${formatDateString(event.eventRegisterEndDate.toString().substring(0, 10))}',
+                            Icons.date_range_outlined),
+                        _buildDetailRow("Event's Date",
+                           formatDateString( event.eventStartDate.toString().substring(0, 10)),
+                            Icons.date_range_outlined),
+                        _buildDetailRow("Time", event.eventStartTime, Icons.access_time_outlined),
+                        FutureBuilder<Map<String, dynamic>>(
+                          future: futureVenue,
+                          builder: (context, venueSnapshot) {
+                            if (venueSnapshot.connectionState == ConnectionState.waiting) {
+                              return const Center(child: CircularProgressIndicator());
+                            } else if (venueSnapshot.hasError) {
+                              return Center(child: Text('Error: ${venueSnapshot.error}'));
+                            } else if (venueSnapshot.hasData) {
+                              final venue = venueSnapshot.data!;
+                              return _buildDetailRow("Venue", venue['name'], Icons.location_on_outlined);
+                            } else {
+                              return const Center(child: Text('No venue data found'));
+                            }
+                          },
                         ),
                         const SizedBox(height: 20),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        const Text("Description",
+                            style: TextStyle(
+                                color: Colors.purple,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700)),
+                        Text(event.description,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 15,
+                            )),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            const Text("Description",
-                                style: TextStyle(
-                                    color: Colors.purple,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700)),
-                            Text('E_description',
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 15,
-                                )),
+                            const Text("Want to Participate! "),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                              onPressed: () {
+                                // Add your participation logic here
+
+                              },
+                              child: const Text('Participate', style: TextStyle(color: Colors.white)),
+                            ),
                           ],
                         ),
-                        const SizedBox(height: 20),
-
-                         Container(
-                           child:SizedBox(
-                             child:ElevatedButton(
-                               onPressed: (){},
-                               child: const Text('Participate'),
-                             )
-                            
-                             ),
-                         ),
-
                       ],
                     ),
                   ),
                 ],
               ),
             );
-      // bottomSheet: BottomSheet(onClosing: (){}, builder: ),
           } else {
             return const Center(child: Text('No data found'));
           }
         },
       ),
     );
-    
-    }
-    }
+  }
+
+  Widget _buildDetailRow(String title, String value, IconData icon) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+              color: Colors.purple,
+              fontSize: 15,
+              fontWeight: FontWeight.w700),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+              ),
+              Icon(icon),
+            ],
+          ),
+        ),
+        const Divider(thickness: 1),
+      ],
+    );
+  }
+}
