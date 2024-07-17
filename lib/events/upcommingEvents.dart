@@ -3,9 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../constant/utils.dart';
-import '../splashScreen.dart';
+
 
 class UpcommingEvents extends StatefulWidget {
   const UpcommingEvents({super.key});
@@ -46,7 +45,7 @@ class _UpcommingEventsState extends State<UpcommingEvents> {
   Future<void> usertype() async {
     var sp = await SharedPreferences.getInstance();
     setState(() {
-      userType = sp.getString(SplashScreenState.KeyUser);
+      userType = sp.getString('userType');
     });
 
     fetchProfileData(userType);

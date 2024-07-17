@@ -8,7 +8,7 @@ class ParticipantServices{
   static String baseUrl = '$Utils.baseUrl';
 
   Future<List<Participants>> fetchParticipants() async {
-    final response = await http.get(Uri.parse('$baseUrl/participants'));
+    final response = await http.get(Uri.parse('${baseUrl}events/participate'));
 
     if (response.statusCode == 200) {
       final List<dynamic> json = jsonDecode(response.body);
@@ -19,13 +19,13 @@ class ParticipantServices{
   }
   Future<Participants> addParticipant(int eventId,int userId) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/participant'),
+      Uri.parse('${baseUrl}events/events/participate'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(Participants(event_id: eventId, user_id: userId).toJson()),
+      body: jsonEncode({"eventId": eventId, "userId": userId}),
     );
-    if(response.statusCode == 201){
+    if(response.statusCode == 200){
       final json = jsonDecode(response.body);
       return Participants.fromJson(json);}
     else{

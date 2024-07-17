@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:project/constant/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/user_model.dart';
+import '../screens/splashScreen.dart';
 
 class UserServices {
   String baseUrl = Utils.baseUrl;
@@ -20,6 +22,7 @@ class UserServices {
       throw Exception('Failed to add user');
     }
   }
+
   Future<User> loginUser(String email, String password) async {
     final response = await http.post(
       Uri.parse('${baseUrl}user/login'),
@@ -28,14 +31,16 @@ class UserServices {
     );
 
     if (response.statusCode == 200) {
-      User user = User.fromJson(jsonDecode(response.body));
-      return user;
+      return User.fromJson(jsonDecode(response.body));
     } else {
-      throw Future.error('error');
+      throw Exception('Failed to login user');
     }
   }
-
-
+  void removeUserId() async {
+    final sp = await SharedPreferences.getInstance();
+    sp.remove(SplashScreenState.KeyLogin);
+    sp.remove('user_id');
+  }
   Future<List<User>> getUsers() async {
     final response = await http.get(Uri.parse('${baseUrl}user/getusers'));
 
@@ -48,9 +53,11 @@ class UserServices {
   }
 
   Future<User> getUserById(int id) async {
-    final response = await http.get(Uri.parse('${baseUrl}user/getuser/$id'));
+    final response = await http.get(Uri.parse('${baseUrl}user/getUser/$id'));
 
     if (response.statusCode == 200) {
+      print(User.fromJson(jsonDecode(response.body)));
+
       return User.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Failed to load user');

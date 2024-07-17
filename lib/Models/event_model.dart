@@ -1,4 +1,3 @@
-
 class Event {
   final int id;
   final String mainImage;
@@ -57,7 +56,24 @@ class Event {
     );
   }
 
-  Object? toJson() {
-    return null;
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'main_image': mainImage,
+      'photo_1': photo1,
+      'photo_2': photo2,
+      'name': name,
+      'description': description,
+      'event_register_start_date': eventRegisterStartDate.toIso8601String(),
+      'event_register_end_date': eventRegisterEndDate.toIso8601String(),
+      'event_start_date': eventStartDate.toIso8601String(),
+      'event_end_date': eventEndDate.toIso8601String(),
+      'event_start_time': eventStartTime,
+      'total_participant': totalParticipant,
+      'department_id': departmentId,
+      'category_id': categoryId,
+      'organizer_id': organizerId,
+      'venue_id': venueId,
+    };
   }
 }

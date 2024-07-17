@@ -1,16 +1,14 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:project/Models/event_model.dart';
 import 'package:project/Services/event_services.dart';
 import 'package:project/Services/participant_services.dart';
-import 'package:project/constant/utils.dart';
+import '../Services/special_services.dart';
 
 class EventDetailPage extends StatefulWidget {
   final int eventId;
+  final int userId;
 
-
-  const EventDetailPage({Key? key, required this.eventId}) : super(key: key);
+  const EventDetailPage({Key? key, required this.eventId, required this.userId}) : super(key: key);
 
   @override
   _EventDetailPageState createState() => _EventDetailPageState(eventId: eventId);
@@ -23,12 +21,14 @@ class _EventDetailPageState extends State<EventDetailPage> {
 late final int eventId ;
   _EventDetailPageState({required this.eventId});
 
-  Future<Map<String, dynamic>> fetchVenue() async {
-    final response = await http.get(Uri.parse('${Utils.baseUrl}others/getVenue/$eventId'));
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Venue not found!');
+
+  void participate()async {
+    try{
+      final participate= ParticipantServices().addParticipant(widget.eventId, widget.userId);
+
+       print(participate);
+    }catch(err){
+      throw Exception("Something went wrong!");
     }
   }
 
@@ -51,7 +51,7 @@ late final int eventId ;
   void initState() {
     super.initState();
     futureEvent = EventServices().fetchEventDetails(widget.eventId);
-    futureVenue = fetchVenue();
+    futureVenue = SpecialServices().fetchVenue(widget.eventId);
   }
 
   @override
@@ -81,8 +81,8 @@ late final int eventId ;
                       borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(200),
                           bottomRight: Radius.circular(50)),
-                      child: Image.asset(
-                        "assets/images/badminton.jpg",
+                      child: Image.network(
+                        event.mainImage,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -134,7 +134,7 @@ late final int eventId ;
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
                               onPressed: () {
-                                // Add your participation logic here
+                              participate;
 
                               },
                               child: const Text('Participate', style: TextStyle(color: Colors.white)),

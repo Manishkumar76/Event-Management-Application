@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:project/authentication/loginPage.dart';
-import 'package:project/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
+
+import '../main.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,7 +15,6 @@ class SplashScreen extends StatefulWidget {
 
 class SplashScreenState extends State<SplashScreen> {
   static const String KeyLogin='logedin';
-  static const String KeyUser="User";
 
   @override
   void initState() {
@@ -67,7 +67,7 @@ class SplashScreenState extends State<SplashScreen> {
       if(Islogedin!=null){
 
         if(Islogedin){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomePage()));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const MainPage()));
         }
         else{
           Navigator.pushReplacement(

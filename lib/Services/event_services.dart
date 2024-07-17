@@ -19,7 +19,7 @@ class EventServices {
 
   Future<Event> createEvent(Event event) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/event'),
+      Uri.parse('${baseUrl}events/store'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

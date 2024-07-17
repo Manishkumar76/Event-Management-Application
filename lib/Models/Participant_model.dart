@@ -15,5 +15,10 @@ factory Participants.fromJson(Map<String, dynamic> json) {
   );
 }
 
-  Object? toJson() {}
+  Object? toJson() {
+    return {
+      'event_id': event_id,
+      'user_id': user_id,
+    };
+  }
 }

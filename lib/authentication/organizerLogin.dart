@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:project/homepage.dart';
+import 'package:project/screens/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constant/utils.dart';
-import '../splashScreen.dart';
+import '../screens/splashScreen.dart';
 
 class Organizer extends StatefulWidget {
   const Organizer({super.key});
@@ -43,7 +43,7 @@ class _OrganizerState extends State<Organizer> {
       if (response.statusCode == 200) {
         var sp = await SharedPreferences.getInstance();
         sp.setBool(SplashScreenState.KeyLogin, true);
-        sp.setString(SplashScreenState.KeyUser, 'Organizer');
+
 
         sp.setString('email', _emailController.text);
         print('Login successful');

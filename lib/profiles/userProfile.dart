@@ -1,274 +1,258 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:project/constant/utils.dart';
+import 'package:project/Services/user_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../Models/user_model.dart';
 import '../authentication/loginPage.dart';
-import '../splashScreen.dart';
+import 'editProfile.dart';
 
 class ProfilePage extends StatefulWidget {
+
+
   const ProfilePage({
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final String apiUrl = '${Utils.baseUrl}user/profile';
-  late var _profileData = null;
-  late var id = null;
-  late var userType = null;
+  User? user;
+  bool isLoading = false;
+  bool isError = false;
+   int ? id;
 
-  Future<void> usertype() async {
-    var sp = await SharedPreferences.getInstance();
+  Future<void> getUserDetails() async {
     setState(() {
-      userType = sp.getString(SplashScreenState.KeyUser);
+      isLoading = true;
     });
-
-    fetchProfileData(userType);
-  }
-
-  Future<void> fetchProfileData(var user) async {
-    final response;
-
-    //*for admin
-    if (user == 'Organizer') {
-      var sp = await SharedPreferences.getInstance();
+    try {
+      final sp= await SharedPreferences.getInstance();
       setState(() {
-        id = sp.getString('email');
+        id=sp.getInt('user_id');
       });
-      print(id);
-      response = await http.post(Uri.parse("${Utils.baseUrl}admin/profile"),
-          headers: {"Content-Type": "application/json"},
-          body: jsonEncode({'email': id}));
-
-      if (response.statusCode == 200) {
-        setState(() {
-          _profileData = json.decode(response.body);
-          print(_profileData);
-        });
-      } else {
-        throw Exception('Failed to load profile data');
-      }
-    }
-    //*for user
-    else {
-      var sp = await SharedPreferences.getInstance();
+      final response = await UserServices().getUserById(id!);
       setState(() {
-        id = sp.getInt('u_id');
+        user = response;
+        isLoading = false;
       });
-      response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({'u_id': id}),
-      );
-      if (response.statusCode == 200) {
-        setState(() {
-          _profileData = json.decode(response.body);
-          print(_profileData);
-        });
-      } else {
-        throw Exception('Failed to load profile data');
-      }
+    } catch (error) {
+      setState(() {
+        isError = true;
+        isLoading = false;
+      });
+      print('Error fetching user details: $error');
     }
   }
 
-  void removedata() async {
-    var sp = await SharedPreferences.getInstance();
-    sp.remove(SplashScreenState.KeyLogin);
-    userType == "Organizer" ? sp.remove('email') : sp.remove('u_id');
-    sp.remove(SplashScreenState.KeyUser);
-  }
 
-  Future openDialog() => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text("Logout"),
-          content: const Text("Do you want to logout? "),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  removedata();
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const LoginPage()));
-                },
-                child: const Text("Yes")),
-            TextButton(
-                onPressed: () {
-                  removedata();
-                  Navigator.pop(context);
-                },
-                child: const Text("NO"))
-          ],
-        ),
-      );
+  Future<void> openDialog() async {
+    final result = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Logout"),
+        content: const Text("Do you want to logout?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              try{
+              UserServices().removeUserId();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+              );}catch(err){
+                throw Exception("Error in logging out");
+              }
+            },
+            child: const Text("Yes"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text("NO"),
+          ),
+        ],
+      ),
+    );
+    if (result == true) {
+      // Perform logout action
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    usertype();
+    getUserDetails();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _profileData == null
-          ? const CircularProgressIndicator()
-          : NestedScrollView(
-              headerSliverBuilder:
-                  (BuildContext context, bool innerBoxIsScrolled) => [
-                        SliverAppBar(
-                          title: Text(
-                              "${userType == "Admin" ? _profileData['A_name'] : _profileData['U_name']}"),
-                          floating: true,
-                        ),
-                      ],
-              body: ListView(
+      body: isLoading
+          ? const Center(
+        child: CircularProgressIndicator(),):ListView(
+        physics: const BouncingScrollPhysics(),
+          scrollDirection: Axis.vertical,
+          children: [
+            SizedBox(
+              height: 255,
+              width: 400,
+              child: Stack(
+                alignment:Alignment.center,
                 children: [
-                  SizedBox(
-                    height: 255,
-                    width: 400,
-                    child: Stack(
-                      fit: StackFit.expand,
+                  GestureDetector(
+                    onTap: () => {
+
+                    },
+                    child: Column(
                       children: [
-                        GestureDetector(
-                          onTap: () => {},
-                          child: Column(children: [
-                            Container(
-                              height: 170,
-                              width: double.infinity,
-                              margin: const EdgeInsets.only(top: 10.0),
-                              child: const ClipRRect(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10),
-                                ),
-                                child: Image(
-                                  image: AssetImage('assets/images/mrsptu.jpg'),
-                                  fit: BoxFit.fitHeight,
-                                ),
-                              ),
-                            )
-                          ]),
-                        ),
-                        const Positioned(
-                          bottom: 10.0,
-                          left: 70.0,
-                          right: 70,
-                          child: SizedBox(
-                            // height: 120,
-                            width: 120,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(150),
-                              ),
-                              child: Center(
-                                  child: Icon(Icons.account_circle_outlined)),
+                        Container(
+                          decoration: const BoxDecoration(),
+                          height: 170,
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(top: 10.0),
+                          child: const ClipRRect(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                            ),
+                            child: Image(
+                              image: AssetImage(
+                                  'assets/images/mrsptu.jpg'),
+                              fit: BoxFit.fill,
                             ),
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),
-                  Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      userType == "Admin"
-                          ? _profileData['A_name'].toString().toUpperCase()
-                          : _profileData['U_name'].toString().toUpperCase(),
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
+                   Positioned(
+                    bottom: 10.0,
+                    left: 70.0,
+                    right: 70,
+                    child: CircleAvatar(
+                      maxRadius: 50,
+                      minRadius: 20,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: const Image(image:AssetImage('assets/images/sports.jpg'),fit: BoxFit.fitHeight,
+                        ),
+                      ),
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () => {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[400],
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.edit, color: Colors.black),
-                            Text(
-                              'Edit Profile',
-                              style: TextStyle(color: Colors.black),
-                            )
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                          onPressed: () => {},
-                          icon: const Icon(Icons.more_horiz))
-                    ],
+                ],
+              ),
+            ),
+            Container(
+              alignment: Alignment.center,
+              child: Text(
+                user?.name.toUpperCase() ?? '',
+                style: const TextStyle(
+                    fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  onPressed: () => {
+                    Navigator.push(context, MaterialPageRoute(builder: (_)=>EditProfileScreen(user: user!,)))
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[400],
                   ),
-                  Column(
+                  child: const Row(
                     children: [
-                      Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 20.0, vertical: 10.0),
-                        child: Row(
-                          // ignore: prefer_const_literals_to_create_immutables
-                          children: [
-                            const Icon(Icons.local_fire_department_rounded),
-                            Text(
-                              "Department : ${userType == "Admin" ? _profileData['Department'] : _profileData['department']}",
-                              style: const TextStyle(
-                                  fontSize: 16, color: Colors.black),
-                            )
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 20.0, vertical: 10.0),
-                        child: Row(
-                          // ignore: prefer_const_literals_to_create_immutables
-                          children: [
-                            const Icon(Icons.batch_prediction),
-                            Text(
-                              userType == "Organizer"
-                                  ? ""
-                                  : ('Batch: ${_profileData['batch']}'),
-                              style: const TextStyle(
-                                  fontSize: 16, color: Colors.black),
-                            )
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 20.0, vertical: 10.0),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.mail),
-                            Text(
-                              '${_profileData['Email']}',
-                              style: const TextStyle(
-                                  fontSize: 16, color: Colors.black),
-                            )
-                          ],
-                        ),
+                      Icon(Icons.edit, color: Colors.black),
+                      Text(
+                        'Edit Profile',
+                        style: TextStyle(color: Colors.black),
                       )
                     ],
                   ),
-                  const Divider(
-                    thickness: 4,
-                    color: Colors.black38,
+                ),
+                IconButton(
+                  onPressed: () => {},
+                  icon: const Icon(Icons.more_horiz),
+                )
+              ],
+            ),
+            Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 10.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.local_fire_department_rounded),
+                      Text(
+                        "Department : ${user?.departmentId ?? ''}",
+                        style: const TextStyle(
+                            fontSize: 16, color: Colors.black),
+                      )
+                    ],
                   ),
-                  ElevatedButton(
-                      onPressed: () {
-                        openDialog();
-                      },
-                      child: const Text("Logout"))
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 10.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.batch_prediction),
+                      Text(
+                        'Batch: ${user?.batchId ?? ''}',
+                        style: const TextStyle(
+                            fontSize: 16, color: Colors.black),
+                      )
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 10.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.mail),
+                      Text(
+                        '${user?.email ?? ''}',
+                        style: const TextStyle(
+                            fontSize: 16, color: Colors.black),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(height: 3,),
+            const Row(
+             mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+              Row(
+                children: [
+                Icon(Icons.list_alt_rounded),
+                Text("Participated",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w400),)
                 ],
-              )),
-    );
+              ),
+              Row(
+                children: [
+                Icon(Icons.list_alt_rounded),
+                Text("Organized",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w400),)
+                ],
+              )
+            ],),
+            const Divider(
+              thickness: 4,
+              color: Colors.black38,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                openDialog();
+              },
+              child: const Text("Logout"),
+            )
+          ],
+        ),
+      );
   }
 }
