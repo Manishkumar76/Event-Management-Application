@@ -158,11 +158,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
       print("Event data: ${event.toJson()}");
 
       await EventServices().createEvent(event).then((createdEvent) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Event created successfully')),
-        );
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const MainPage()));
-        print('Event created: ${createdEvent.id}');
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainPage()));
       }).catchError((error) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to create event')),

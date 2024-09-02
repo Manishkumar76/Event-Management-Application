@@ -4,6 +4,7 @@ import 'package:project/Services/event_services.dart';
 import 'package:project/Models/event_model.dart';
 import 'package:project/Services/special_services.dart';
 import 'package:project/events/eventPage.dart';
+import 'package:project/screens/searchScreen.dart';
 import 'package:project/screens/shimmerEffectPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/Categories_model.dart';
@@ -29,6 +30,7 @@ class _HomePageState extends State<HomePage> {
   int? setCategory;
   List <Venue>? _venues;
   late Future<Map<String, dynamic>> futureVenue;
+
   Future<void> _fetchvenues() async{
     try{
       List<Venue> venues=  await SpecialServices().getAllvenues();
@@ -50,12 +52,6 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to load categories: $error'),
-          duration: const Duration(seconds: 3),
-        ),
-      );
     }
   }
   Future<void> getUserDetails() async {
@@ -92,13 +88,20 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
+  void _fetchAllEvents()async{
+try{
+  futureEvents=EventServices().fetchAllEvents();
+}catch(error){
+  print('Error fetching events: $error');
+}
+}
   @override
   void initState() {
     super.initState();
     _fetchCategories();
     _fetchvenues();
     getUserDetails();
-    futureEvents = EventServices().fetchAllEvents();
+    _fetchAllEvents();
   }
   @override
   Widget build(BuildContext context) {
@@ -117,6 +120,11 @@ class _HomePageState extends State<HomePage> {
           },
           child: const Icon(Icons.person),
         ),
+        actions: [
+          IconButton(
+              onPressed: (){
+                Navigator.push(context, MaterialPageRoute(builder: (_)=>SearchEventPage()));}, icon: const Icon(Icons.search))
+        ],
       ),
       body: FutureBuilder<List<Event>>(
         future: futureEvents,
@@ -210,14 +218,7 @@ class _HomePageState extends State<HomePage> {
     // Return in dd-MM-yyyy format
     return '$day-$month-$year';
   }
-  Future<String> venue(int id) async {
-    try {
-      final response = await SpecialServices().fetchVenue(id);
-      return response['venue_name'] ?? 'Venue not found'; // Adjust according to your API response
-    } catch (error) {
-      return 'Error loading venue';
-    }
-  }
+
   Widget _buildCarouselSlider(List<Event> events) {
     return CarouselSlider(
       options: CarouselOptions(
@@ -225,7 +226,7 @@ class _HomePageState extends State<HomePage> {
           autoPlay: true,
           autoPlayInterval: const Duration(seconds: 5),
           autoPlayAnimationDuration: const Duration(milliseconds: 800),
-          autoPlayCurve: Curves.easeInCirc,
+          autoPlayCurve: Curves.decelerate,
           pauseAutoPlayOnTouch: true,
           aspectRatio: 2.0,
           enlargeCenterPage: true,
@@ -364,6 +365,7 @@ class _HomePageState extends State<HomePage> {
       );
     }
   }
+
   Widget _buildCategorySection(List<Event> events, int categoryId) {
     final categoryEvents =
         events.where((event) => event.categoryId == categoryId).toList();
@@ -387,9 +389,9 @@ class _HomePageState extends State<HomePage> {
 
             final event = events[index];
             final venue= _venues!.firstWhere((element) => element.id==event.venueId);
-            return GestureDetector(
+            return event!=null && venue!=null?GestureDetector(
               onTap: () {
-              Navigator.push(context,MaterialPageRoute(builder: (_)=>EventDetailPage(eventId: event.id, userId: user!.id,)));
+                Navigator.push(context,MaterialPageRoute(builder: (_)=>EventDetailPage(eventId: event.id, userId: user!.id,)));
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
@@ -408,7 +410,7 @@ class _HomePageState extends State<HomePage> {
                               fit: BoxFit.cover,
                               height: 150,
                               width: double.infinity
-                        ),),
+                          ),),
                         SizedBox(
                           width: double.infinity,
                           child: Padding(
@@ -444,9 +446,9 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     const Icon(Icons.location_on_outlined),
                                     const SizedBox(width: 4),
-                                    Text("${ venue.name} - ${venue.address}",
-                                      style: const TextStyle(fontSize: 10),
-                                    ),
+                                      Text("${ venue.name} - ${venue.address}",
+                                        style: const TextStyle(fontSize: 10),
+                                      ),
                                   ],
                                 ),
                               ],
@@ -458,7 +460,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-            );
+            ):const ShimmerEffectPage();
           },
         ),
       ),

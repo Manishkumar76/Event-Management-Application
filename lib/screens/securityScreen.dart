@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'changePassword.dart';
+
 class SecurityScreen extends StatelessWidget {
   const SecurityScreen({super.key});
 
@@ -17,6 +19,9 @@ class SecurityScreen extends StatelessWidget {
             leading: Icon(Icons.lock),
             onTap: () {
               // Navigate to change password screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChangePassword()));
             },
           ),
           ListTile(

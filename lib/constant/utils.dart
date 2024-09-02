@@ -1,7 +1,7 @@
 
 class Utils{
 
-  static String baseUrl="https://0qfqncng-3000.inc1.devtunnels.ms/";
+  static String baseUrl="https://r7jtnjjt-3000.inc1.devtunnels.ms/";
 
 }
 

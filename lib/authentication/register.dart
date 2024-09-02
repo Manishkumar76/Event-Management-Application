@@ -86,29 +86,29 @@ _fetchBatches();
         age: 0,
         departmentId: _selectedDepartmentId!,
         batchId: _selectedBatchId!,
-        verifyEmail: '',
+        verifyEmail: "",
         token: '',
       );
 
-      try {
-        User registeredUser = await _userServices.addUser(newUser);
 
-        if (registeredUser.id != 0) {
+        await _userServices.addUser(newUser).then(
+          (registered)=>{
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => LoginPage()),
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          )
+          }).catchError((error) {
+          print('Failed to register user: $error');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'An error occurred during registration. Please try again.'),
+              duration: Duration(seconds: 3),
+            ),
           );
-        }
-      } catch (error) {
-        print("Error: $error");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('An error occurred during registration. Please try again.'),
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
-    } else {
+        });}
+
+            else {
       setState(() {
         isNotValid = true;
       });

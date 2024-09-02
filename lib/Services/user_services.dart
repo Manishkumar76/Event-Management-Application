@@ -14,8 +14,11 @@ class UserServices {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(user.toJson()),
     );
+    if(response.statusCode == 201){
+      return User.fromJson(jsonDecode(response.body));
+      throw Exception('Failed to add user');}
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200) {
       print(response.body);
       return User.fromJson(jsonDecode(response.body));
     } else {

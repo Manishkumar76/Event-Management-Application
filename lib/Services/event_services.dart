@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:project/Models/event_model.dart';
 import 'package:project/constant/utils.dart';
 
+
 class EventServices {
   static  String baseUrl = Utils.baseUrl;
 
@@ -26,9 +27,8 @@ class EventServices {
       body: jsonEncode(event.toJson()),
     );
 
-    if (response.statusCode == 201) {
-      final json = jsonDecode(response.body);
-      return Event.fromJson(json);
+    if (response.statusCode == 200) {
+      return Event.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Failed to create event');
     }
